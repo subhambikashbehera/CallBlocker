@@ -36,9 +36,8 @@ open class CallReceiver : BroadcastReceiver() {
                 TelephonyManager.EXTRA_STATE
             ) == TelephonyManager.EXTRA_STATE_RINGING
         ) {
-            val incomingNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER)
+            var incomingNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER)
                 ?: return
-
             Log.i(TAG, "Received call: $incomingNumber")
             if (TextUtils.isEmpty(incomingNumber)) {
                 Log.i(TAG, "Received call: ")
@@ -46,6 +45,7 @@ open class CallReceiver : BroadcastReceiver() {
 
             } else {
                 try {
+
                     CoroutineScope(Dispatchers.IO).launch {
                         val dm = NumberDatabase.getdbinstance(context)
                         val id = dm.Daocall().getid(incomingNumber)
@@ -53,8 +53,7 @@ open class CallReceiver : BroadcastReceiver() {
                         val nuumber=dm.Daocall().getnum(incomingNumber)
                         val nc = dm.Daocall().getnocalls(incomingNumber)
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            val formatter: DateTimeFormatter =
-                                DateTimeFormatter.ofPattern("hh.mm.ss")
+                            val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("hh.mm")
                            try {
                                dm.Daocall().updatesecific(
                                    LocalTime.now().format(formatter).toString(),
@@ -69,14 +68,14 @@ open class CallReceiver : BroadcastReceiver() {
                             rejectCall(context, incomingNumber)
                         }
 
+               //         rejectCall(context, incomingNumber)
+
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
 
                 //rejectCall(context,incomingNumber)
-
-
             }
         }
         if (intent.getStringExtra(

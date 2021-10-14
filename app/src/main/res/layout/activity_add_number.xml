@@ -19,19 +19,48 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Name"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                >
+                <LinearLayout
+                    android:layout_toLeftOf="@+id/contact"
+                    android:layout_alignParentStart="true"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    >
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Name"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <EditText
-                android:id="@+id/name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:inputType="textPersonName"
-                android:hint="spammername" />
+                    <EditText
+                        android:id="@+id/name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:inputType="textPersonName"
+                        android:hint="Spammer Name" />
+
+                </LinearLayout>
+
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentEnd="true"
+                    android:id="@+id/contact"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="7dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_baseline_perm_contact_calendar_24"
+                    />
+
+            </RelativeLayout>
+
+
 
             <TextView
                 android:layout_width="match_parent"
@@ -44,15 +73,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="phone"
-                android:hint="+917749867465" />
+                android:hint="e.g.+911234567890" />
 
             <TextView
                 android:textColor="#016C5E"
-                android:textAlignment="center"
                 android:layout_marginTop="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Enter number with country code\n\nOR" />
+                android:text="Enter number with country code e.g.+91" />
 
             <Space
                 android:layout_width="match_parent"
@@ -64,22 +92,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 >
-                <TextView
-                    android:textColor="#2962FF"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Pick From Contact"
-                    android:textSize="18sp"
-                    android:layout_marginEnd="7dp"
-                    />
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                   android:id="@+id/contact"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="7dp"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/ic_baseline_perm_contact_calendar_24"
-                    />
+
 
 
 
@@ -104,7 +117,7 @@
                     android:layout_marginEnd="5dp"
                     android:text="cancel"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                    app:strokeColor="@color/black"
+                    app:strokeColor="#2E7302"
                     app:strokeWidth="1dp"
                     android:id="@+id/cancel" />
 

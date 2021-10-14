@@ -1,16 +1,16 @@
 package com.subhamassignment.callblocker
 
 import android.Manifest
-import android.content.AsyncTaskLoader
-import android.content.ContentValues
-import android.content.Context
-import android.content.Intent
+import android.content.*
 import android.content.pm.PackageManager
 import android.database.DatabaseUtils
 import android.database.sqlite.SQLiteDatabase
 import android.os.Build
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -27,7 +27,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.LinkedHashSet
-import android.content.IntentFilter
 import com.subhamassignment.callblocker.Utils.CallReceiver
 
 
@@ -76,8 +75,7 @@ open class MainActivity : AppCompatActivity() {
         val missingPermissions: MutableList<String> = java.util.ArrayList()
         for (permission in requiredPermissions) {
             if (ContextCompat.checkSelfPermission(this, permission)
-                !== PackageManager.PERMISSION_GRANTED
-            ) {
+                !== PackageManager.PERMISSION_GRANTED) {
                 missingPermissions.add(permission)
             }
         }
@@ -125,7 +123,42 @@ open class MainActivity : AppCompatActivity() {
     }
 
 
+    override fun onPause() {
+        super.onPause()
+        val packageManager = packageManager
+        val componentName = ComponentName(this@MainActivity, MainActivity::class.java)
+        packageManager.setComponentEnabledSetting(componentName,
+            PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+            PackageManager.DONT_KILL_APP)
+    }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.toolbar,menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.setting->{
+                val intent=Intent(this,Setting::class.java)
+                startActivity(intent)
+            }
+            R.id.share->{
+                try {
+                    val intent1 = Intent(Intent.ACTION_SEND)
+                    intent1.type = "text/plain"
+                    intent1.putExtra(Intent.EXTRA_SUBJECT, "GIETU PORTAL")
+                    val shareMessage = "https://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID + "\n\n"
+                    intent1.putExtra(Intent.EXTRA_TEXT, shareMessage)
+                    startActivity(Intent.createChooser(intent1, "share by"))
+                } catch (e: Exception) {
+                    Toast.makeText(this@MainActivity, "error occured", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+        }
+        return true
+    }
 
 
 

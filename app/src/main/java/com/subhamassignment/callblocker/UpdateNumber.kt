@@ -1,5 +1,7 @@
 package com.subhamassignment.callblocker
 
+import android.content.ComponentName
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
@@ -31,7 +33,7 @@ class UpdateNumber : AppCompatActivity() {
 
         binding.add.setOnClickListener {
             val name = binding.name.text.toString()
-            val number = binding.number.text.toString()
+            val number = binding.number.text.toString().trim { it <= ' ' }.replace(" ","")
 
             if (TextUtils.isEmpty(name)) {
                 binding.name.error = "required"
@@ -49,5 +51,15 @@ class UpdateNumber : AppCompatActivity() {
         binding.cancel.setOnClickListener {
             finish()
         }
+    }
+
+
+    override fun onPause() {
+        super.onPause()
+        val packageManager = packageManager
+        val componentName = ComponentName(this, MainActivity::class.java)
+        packageManager.setComponentEnabledSetting(componentName,
+            PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+            PackageManager.DONT_KILL_APP)
     }
 }
