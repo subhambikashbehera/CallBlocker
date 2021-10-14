@@ -3,16 +3,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:title="Setting"
-        android:id="@+id/setting"
-        app:showAsAction="always"
-        android:icon="@drawable/ic_baseline_settings_24"
-        />
-
-    <item
         android:title="share"
         android:id="@+id/share"
         app:showAsAction="ifRoom"
         android:icon="@drawable/ic_baseline_share_24"
         />
+    <item
+        android:id="@+id/block_hidden_numbers"
+        android:checkable="true"
+        android:title="Block hidden numbers" />
+    <item
+        android:id="@+id/notifications"
+        android:checkable="true"
+        android:title="Show notifications" />
+    <item
+        android:id="@+id/blockall"
+        android:checkable="true"
+        android:title="All Call Block" />
+
+
 </menu>

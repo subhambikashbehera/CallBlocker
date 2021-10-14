@@ -3,10 +3,9 @@ package com.subhamassignment.callblocker
 import android.Manifest
 import android.content.*
 import android.content.pm.PackageManager
-import android.database.DatabaseUtils
-import android.database.sqlite.SQLiteDatabase
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -19,15 +18,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.subhamassignment.callblocker.Adapter.RecyclerAdapter
-import com.subhamassignment.callblocker.Utils.BlacklistObserver
+import com.subhamassignment.callblocker.Utils.CallReceiver
+import com.subhamassignment.callblocker.Utils.preferances
 import com.subhamassignment.callblocker.ViewModel.Mainactivity_viewmodel
 import com.subhamassignment.callblocker.dataBaseHandle.NumberModel_table
 import com.subhamassignment.callblocker.databinding.ActivityMainBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.util.LinkedHashSet
-import com.subhamassignment.callblocker.Utils.CallReceiver
 
 
 open class MainActivity : AppCompatActivity() {
@@ -49,19 +44,13 @@ open class MainActivity : AppCompatActivity() {
             binding.recyclerView.layoutManager = lm
         })
         binding.addnumber.setOnClickListener {
-            val intent= Intent(this,AddNumber::class.java)
+            val intent = Intent(this, AddNumber::class.java)
             startActivity(intent)
         }
-        val x=CallReceiver()
+        val x = CallReceiver()
         val intentFilter = IntentFilter("android.intent.action.PHONE_STATE")
         registerReceiver(x, intentFilter)
-
-
-
-
-
     }
-
     protected fun requestPermissions() {
         val requiredPermissions: MutableList<String> = java.util.ArrayList()
         requiredPermissions.add(Manifest.permission.CALL_PHONE)
@@ -75,7 +64,8 @@ open class MainActivity : AppCompatActivity() {
         val missingPermissions: MutableList<String> = java.util.ArrayList()
         for (permission in requiredPermissions) {
             if (ContextCompat.checkSelfPermission(this, permission)
-                !== PackageManager.PERMISSION_GRANTED) {
+                !== PackageManager.PERMISSION_GRANTED
+            ) {
                 missingPermissions.add(permission)
             }
         }
@@ -118,6 +108,16 @@ open class MainActivity : AppCompatActivity() {
                 .show()
 
         }
+        try {
+            val check = getSharedPreferences("check", MODE_PRIVATE)
+            if (check.getString("isfirst","")  != "no")
+            {
+                startcheckoption()
+            }
+        }catch (e:Exception)
+        {
+            e.printStackTrace()
+        }
 
 
     }
@@ -127,39 +127,85 @@ open class MainActivity : AppCompatActivity() {
         super.onPause()
         val packageManager = packageManager
         val componentName = ComponentName(this@MainActivity, MainActivity::class.java)
-        packageManager.setComponentEnabledSetting(componentName,
+        packageManager.setComponentEnabledSetting(
+            componentName,
             PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-            PackageManager.DONT_KILL_APP)
+            PackageManager.DONT_KILL_APP
+        )
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.toolbar,menu)
+        menuInflater.inflate(R.menu.toolbar, menu)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
-            R.id.setting->{
-                val intent=Intent(this,Setting::class.java)
-                startActivity(intent)
-            }
-            R.id.share->{
+        val pref = getSharedPreferences("preferences", MODE_PRIVATE)
+        val editor = pref.edit()
+
+        when (item.itemId) {
+
+            R.id.share -> {
                 try {
                     val intent1 = Intent(Intent.ACTION_SEND)
                     intent1.type = "text/plain"
-                    intent1.putExtra(Intent.EXTRA_SUBJECT, "GIETU PORTAL")
-                    val shareMessage = "https://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID + "\n\n"
+                    intent1.putExtra(Intent.EXTRA_SUBJECT, "call blocker")
+                    val shareMessage =
+                        "https://play.google.com/store/apps/details?id=" + com.subhamassignment.callblocker.BuildConfig.APPLICATION_ID + "\n\n"
                     intent1.putExtra(Intent.EXTRA_TEXT, shareMessage)
                     startActivity(Intent.createChooser(intent1, "share by"))
                 } catch (e: Exception) {
-                    Toast.makeText(this@MainActivity, "error occured", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "error occured", Toast.LENGTH_SHORT).show()
                 }
-            }
 
+            }
+            R.id.block_hidden_numbers -> {
+                if (preferances(this).blockHiddenNumbers()) {
+                    editor.putString("hidden", "0")
+                } else {
+                    editor.putString("hidden", "1")
+                }
+                editor.apply()
+            }
+            R.id.notifications -> {
+
+                if (preferances(this).showNotifications()) {
+                    editor.putString("notification", "0")
+                } else {
+                    editor.putString("notification", "1")
+                }
+                editor.apply()
+
+            }
+            R.id.blockall -> {
+                if (preferances(this).blockall()) {
+                    editor.putString("blockall", "0")
+                } else {
+                    editor.putString("blockall", "1")
+                }
+                editor.apply()
+            }
         }
         return true
     }
-
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        try {
+            menu!!.findItem(R.id.block_hidden_numbers).isChecked =
+                preferances(this).blockHiddenNumbers()
+            menu.findItem(R.id.notifications).isChecked = preferances(this).showNotifications()
+            menu.findItem(R.id.blockall).isChecked = preferances(this).blockall()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return true
+    }
+    fun startcheckoption(){
+        preferances.onstart.onstart(this)
+        val check = getSharedPreferences("check", MODE_PRIVATE)
+        val chss=check.edit()
+        chss.putString("isfirst","no")
+        chss.apply()
+    }
 
 
 }

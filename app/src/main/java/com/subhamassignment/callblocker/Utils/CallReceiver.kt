@@ -40,12 +40,12 @@ open class CallReceiver : BroadcastReceiver() {
                 ?: return
             Log.i(TAG, "Received call: $incomingNumber")
             if (TextUtils.isEmpty(incomingNumber)) {
-                Log.i(TAG, "Received call: ")
-                rejectCall(context, null)
-
+                if (preferances(context).blockHiddenNumbers())
+                {
+                    rejectCall(context, null)
+                }
             } else {
                 try {
-
                     CoroutineScope(Dispatchers.IO).launch {
                         val dm = NumberDatabase.getdbinstance(context)
                         val id = dm.Daocall().getid(incomingNumber)
@@ -63,7 +63,12 @@ open class CallReceiver : BroadcastReceiver() {
                               e.printStackTrace()
                            }
                         }
-                        if (incomingNumber==nuumber)
+
+                        if (preferances(context).blockall())
+                        {
+                            rejectCall(context, incomingNumber)
+                        }
+                        else if (incomingNumber==nuumber)
                         {
                             rejectCall(context, incomingNumber)
                         }
@@ -132,32 +137,31 @@ open class CallReceiver : BroadcastReceiver() {
             channel.description = "call rejected"
             notificationManager.createNotificationChannel(channel)
         }
-
-        val notify: Notification = NotificationCompat.Builder(context, "M_CH_ID")
-            .setSmallIcon(R.drawable.ic_launcher_small)
-            .setContentTitle("call rejected for $numberd")
-            .setContentText("Tap To see")
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setCategory(NotificationCompat.CATEGORY_CALL)
-            .setShowWhen(true)
-            .setAutoCancel(true)
-            .setContentIntent(
-                PendingIntent.getActivity(
-                    context, 0, Intent(
-                        context,
-                        MainActivity::class.java
-                    ), PendingIntent.FLAG_UPDATE_CURRENT
+        if (preferances(context).showNotifications()){
+            val notify: Notification = NotificationCompat.Builder(context, "M_CH_ID")
+                .setSmallIcon(R.drawable.ic_launcher_small)
+                .setContentTitle("call rejected for $numberd")
+                .setContentText("Tap To see")
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(NotificationCompat.CATEGORY_CALL)
+                .setShowWhen(true)
+                .setAutoCancel(true)
+                .setContentIntent(
+                    PendingIntent.getActivity(
+                        context, 0, Intent(
+                            context,
+                            MainActivity::class.java
+                        ), PendingIntent.FLAG_UPDATE_CURRENT
+                    )
                 )
-            )
-            .addPerson("tel:$numberd")
-            .setGroup("rejected")
-            .setChannelId("default")
-            .setGroupSummary(true)
-            .build()
-        val tag = numberd ?: "private"
-        NotificationManagerCompat.from(context).notify(tag.toString(), NOTIFY_REJECTED, notify)
-
-
+                .addPerson("tel:$numberd")
+                .setGroup("rejected")
+                .setChannelId("default")
+                .setGroupSummary(true)
+                .build()
+            val tag = numberd ?: "private"
+            NotificationManagerCompat.from(context).notify(tag.toString(), NOTIFY_REJECTED, notify)
+        }
     }
 
     companion object {
